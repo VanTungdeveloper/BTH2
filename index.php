@@ -1,19 +1,49 @@
-<?php include './layout/header.php';?>
-<div class="container">
-    <h2>Example: Comment System with Ajax, PHP & MySQL</h2>
-    <form method="POST" id="commentForm">
-        <div class="form-group">
-            <input type="text" name="name" id="name" class="form-control" placeholder="Enter Name" required />
-        </div>
-        <div class="form-group">
-            <textarea name="comment" id="comment" class="form-control" placeholder="Enter Comment" rows="5" required></textarea>
-        </div>
-        <span id="message"></span>
-        <div class="form-group">
-            <input type="hidden" name="commentId" id="commentId" value="0" />
-            <input type="submit" name="submit" id="submit" class="btn btn-primary" value="Post Comment" />
-        </div>
-    </form>
-    <div id="showComments"></div>
+<?php 
+include_once 'config/Database.php';
+include_once 'class/Articles.php';
+$database = new Database();
+$db = $database->getConnection();
+
+$article = new Articles($db);
+
+$article->setId(0);
+
+$result = $article->getArticles();
+
+include('inc/header.php');
+
+?>
+<title>phpzag.com : Demo Build Content Management System with PHP & MySQL</title>
+<link href="css/style.css" rel="stylesheet" id="bootstrap-css">
+
+<?php include('inc/container.php');?>
+<div class="container">	
+		<div id="blog" class="row">
+			<div class="header">
+			<a href="#default" class="logo">My DEMO CMS</a>
+			<div class="header-right">
+				<a href="index.php">Home</a>
+				<a href="#contact">Contact</a>
+				<a href="#about">About</a>
+			</div>
+		</div>	
+		<?php
+		while ($post = $result->fetch_assoc()) {
+			$date = date_create($post['created']);					
+			$message = str_replace("\n\r", "<br><br>", $post['message']);
+			$message = $article->formatMessage($message, 100);
+			?>
+			<div class="col-md-10 blogShort">
+			<h3><a href="view.php?id=<?php echo $post['id']; ?>"><?php echo $post['title']; ?></a></h3>		
+			<em><strong>Published on</strong>: <?php echo date_format($date, "d F Y");	?></em>
+			<em><strong>Category:</strong> <a href="#" target="_blank"><?php echo $post['category']; ?></a></em>
+			<br><br>
+			<article>		
+			<p><?php echo $message; ?> 	</p>
+			</article>
+			<a class="btn btn-blog pull-right" href="view.php?id=<?php echo $post['id']; ?>">READ MORE</a> 
+			</div>
+		<?php } ?>   	
+	</div>
 </div>
-<?php include './layout/footer.php';?>
+<?php include('inc/footer.php');?>
